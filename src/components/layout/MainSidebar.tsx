@@ -1,50 +1,89 @@
+'use client'
+
 import Link from 'next/link'
-import { MessageSquare, Globe, Plus, LogOut } from 'lucide-react'
+import { Globe, LogOut, MessageSquare, UserPlus, Users } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { UserAvatar } from '@/components/chat/UserAvatar'
+import { ThemeToggle } from './ThemeToggle'
+import { useChatStore } from '@/store/useChatStore'
+import { cn } from '@/lib/utils'
 
 interface MainSidebarProps {
-  pathname: string;
-  onLogout: () => void;
-  onAddFriend: () => void;
+  pathname: string
+  onLogout: () => void
 }
 
-export function MainSidebar({ pathname, onLogout, onAddFriend }: MainSidebarProps) {
+function RailItem({ label, active, href, onClick, children, danger }: {
+  label: string
+  active?: boolean
+  href?: string
+  onClick?: () => void
+  children: ReactNode
+  danger?: boolean
+}) {
+  const cls = cn(
+    'flex size-11 items-center justify-center rounded-3xl text-muted-foreground transition-all duration-200 hover:rounded-2xl',
+    active ? 'rounded-2xl bg-primary text-primary-foreground' : danger ? 'bg-muted hover:bg-destructive hover:text-white' : 'bg-muted hover:bg-primary hover:text-primary-foreground',
+  )
   return (
-    <nav className="w-[72px] h-full bg-zinc-950 flex flex-col items-center py-4 gap-4 flex-shrink-0 z-20">
-      <Link href="/chat">
-        <div className={`w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center group relative ${pathname === '/chat' ? 'bg-blue-600 rounded-[16px]' : 'bg-zinc-800 hover:bg-blue-600 text-zinc-100'}`}>
-          <MessageSquare size={24} strokeWidth={1.5} />
-          <div className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
-            Direct Messages
-          </div>
-        </div>
-      </Link>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {href ? (
+          <Link href={href} className={cls} aria-label={label}>
+            {children}
+          </Link>
+        ) : (
+          <button onClick={onClick} className={cls} aria-label={label}>
+            {children}
+          </button>
+        )}
+      </TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  )
+}
 
-      <div className="w-8 h-[2px] bg-zinc-800 rounded-full my-1"></div>
+export function MainSidebar({ pathname, onLogout }: MainSidebarProps) {
+  const me = useChatStore((s) => s.me)
+  const setAddFriendOpen = useChatStore((s) => s.setAddFriendModalOpen)
+  const setCreateGroupOpen = useChatStore((s) => s.setCreateGroupModalOpen)
+  const isPublic = pathname.startsWith('/chat/public')
 
-      <Link href="/chat/public">
-        <div className={`w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center group relative ${pathname.includes('/public') ? 'bg-green-600 rounded-[16px]' : 'bg-zinc-800 hover:bg-green-600 text-green-500 hover:text-white'}`}>
-          <Globe size={24} strokeWidth={1.5} />
-          <div className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
-            Public Chat
-          </div>
-        </div>
-      </Link>
+  return (
+    <nav className="z-20 flex h-full w-16 shrink-0 flex-col items-center gap-3 border-r bg-sidebar py-4 text-sidebar-foreground">
+      <RailItem label="Obrolan" href="/chat" active={!isPublic}>
+        <MessageSquare className="size-5" />
+      </RailItem>
+      <RailItem label="Chat Publik" href="/chat/public" active={isPublic}>
+        <Globe className="size-5" />
+      </RailItem>
 
-      <button onClick={onAddFriend} className="w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-200 bg-zinc-800 hover:bg-green-500 text-green-500 hover:text-white flex items-center justify-center group relative">
-        <Plus size={24} strokeWidth={2} />
-        <div className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
-          Tambah Teman
-        </div>
-      </button>
+      <div className="my-1 h-px w-8 bg-border" />
 
-      <div className="flex-1"></div>
+      <RailItem label="Cari teman" onClick={() => setAddFriendOpen(true)}>
+        <UserPlus className="size-5" />
+      </RailItem>
+      <RailItem label="Buat grup" onClick={() => setCreateGroupOpen(true)}>
+        <Users className="size-5" />
+      </RailItem>
 
-      <button onClick={onLogout} className="w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-200 bg-zinc-800 hover:bg-red-500 text-zinc-400 hover:text-white flex items-center justify-center group relative">
-        <LogOut size={22} strokeWidth={1.5} />
-        <div className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
-          Keluar
-        </div>
-      </button>
+      <div className="flex-1" />
+
+      <ThemeToggle className="rounded-full text-muted-foreground" />
+      {me && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <UserAvatar name={me.display_name} src={me.avatar_url} className="size-9" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="right">{me.display_name}</TooltipContent>
+        </Tooltip>
+      )}
+      <RailItem label="Keluar" onClick={onLogout} danger>
+        <LogOut className="size-5" />
+      </RailItem>
     </nav>
   )
 }

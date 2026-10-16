@@ -1,37 +1,34 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next'
+import { Geist_Mono, Inter } from 'next/font/google'
+import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// Kamu bisa menyesuaikan metadata ini
 export const metadata: Metadata = {
-  title: "Nechat | App Chat Usagi",
-  description: "Web Chat P2P dengan E2EE",
-};
+  title: 'Nechat | Chat privat dengan E2EE',
+  description: 'Web chat dengan enkripsi end-to-end untuk pesan, file, dan grup.',
+}
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
+}
+
+// Terapkan tema tersimpan sebelum paint agar tidak berkedip.
+const themeScript = `try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      // Menggunakan template literal (`) untuk menggabungkan class dan variabel font
-      className={`h-full antialiased ${geistSans.variable} ${geistMono.variable} ${inter.variable} font-sans`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="id" suppressHydrationWarning className={`h-full antialiased ${inter.variable} ${geistMono.variable} font-sans`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
-  );
+  )
 }

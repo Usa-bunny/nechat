@@ -1,34 +1,29 @@
 'use client'
 
-import { UserPlus } from 'lucide-react'
+import { MessageCircleHeart, UserPlus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { SecondarySidebar } from '@/components/layout/SecondarySidebar'
 import { useChatStore } from '@/store/useChatStore'
 
+// Sidebar sekarang dirender oleh layout, jadi tetap tampil di semua halaman /chat/*.
 export default function ChatDashboardPage() {
-  const setAddFriendModalOpen = useChatStore((state) => state.setAddFriendModalOpen)
-
-  const handleOpenAddFriend = () => {
-    setAddFriendModalOpen(true)
-  }
+  const setAddFriendOpen = useChatStore((s) => s.setAddFriendModalOpen)
+  const setCreateGroupOpen = useChatStore((s) => s.setCreateGroupModalOpen)
 
   return (
-    <div className="flex flex-1 h-full">
-      {/* Sidebar Daftar Teman */}
-      <SecondarySidebar onAddFriend={handleOpenAddFriend} />
-
-      {/* Area Tengah / Layar Sambutan */}
-      <div className="flex-1 flex flex-col bg-white items-center justify-center text-center p-8">
-        <div className="w-24 h-24 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-6 shadow-inner">
-          <UserPlus size={48} strokeWidth={1.5} />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Mulai Obrolan Rahasia</h2>
-        <p className="text-slate-500 max-w-md mb-8">
-          Tambahkan teman dengan mencari username mereka untuk memulai percakapan yang dilindungi End-to-End Encryption.
-        </p>
-        
-        <Button onClick={handleOpenAddFriend} className="bg-blue-600 hover:bg-blue-700 px-8 rounded-full shadow-md">
-          Cari Teman Baru
+    <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 p-8 text-center">
+      <div className="mb-6 flex size-24 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <MessageCircleHeart className="size-12" strokeWidth={1.5} />
+      </div>
+      <h2 className="mb-2 text-2xl font-bold">Mulai obrolan rahasia</h2>
+      <p className="mb-8 max-w-md text-sm text-muted-foreground">
+        Cari teman untuk chat pribadi, atau buat grup. Semua pesan dan file dilindungi enkripsi end-to-end.
+      </p>
+      <div className="flex flex-wrap justify-center gap-3">
+        <Button size="lg" className="rounded-full" onClick={() => setAddFriendOpen(true)}>
+          <UserPlus /> Cari teman
+        </Button>
+        <Button size="lg" variant="outline" className="rounded-full" onClick={() => setCreateGroupOpen(true)}>
+          <Users /> Buat grup
         </Button>
       </div>
     </div>
